@@ -34,6 +34,7 @@ func Detect(commands []db.Command) []db.Workflow {
 
 	flush := func() {
 		if len(current) >= minWorkflowSize {
+			// current is in ASC order already (sortByTime applied)
 			w := db.Workflow{
 				Name:      autoName(current),
 				GitRepo:   current[0].GitRepo,
@@ -73,6 +74,15 @@ func Detect(commands []db.Command) []db.Workflow {
 	return workflows
 }
 
+// reverseCommands reverses the slice so workflows display oldest-first.
+func reverseCommands(cmds []db.Command) []db.Command {
+	out := make([]db.Command, len(cmds))
+	for i, c := range cmds {
+		out[len(cmds)-1-i] = c
+	}
+	return out
+}
+
 // autoName generates a human-readable name for a workflow based on the commands.
 func autoName(cmds []db.Command) string {
 	// Use the first "meaningful" command (not cd, ls, etc.)
@@ -108,10 +118,15 @@ func autoName(cmds []db.Command) string {
 }
 
 func sortByTime(cmds []db.Command) {
-	// Simple insertion sort (lists are usually small)
+	// Insertion sort by (recorded_at ASC, id ASC) — stable ordering even for same-second commands
 	for i := 1; i < len(cmds); i++ {
-		for j := i; j > 0 && cmds[j].RecordedAt.Before(cmds[j-1].RecordedAt); j-- {
-			cmds[j], cmds[j-1] = cmds[j-1], cmds[j]
+		for j := i; j > 0; j-- {
+			a, b := cmds[j], cmds[j-1]
+			if a.RecordedAt.Before(b.RecordedAt) || (a.RecordedAt.Equal(b.RecordedAt) && a.ID < b.ID) {
+				cmds[j], cmds[j-1] = cmds[j-1], cmds[j]
+			} else {
+				break
+			}
 		}
 	}
 }

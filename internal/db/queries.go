@@ -43,7 +43,7 @@ func (db *DB) SearchCommands(query string, limit int) ([]Command, error) {
 		       exit_code, duration_ms, session_id, hostname, recorded_at
 		FROM commands
 		WHERE command LIKE ?
-		ORDER BY recorded_at DESC
+		ORDER BY recorded_at DESC, id DESC
 		LIMIT ?`,
 		"%"+query+"%", limit,
 	)
@@ -64,14 +64,14 @@ func (db *DB) RecentCommands(gitRepo string, limit int) ([]Command, error) {
 			       exit_code, duration_ms, session_id, hostname, recorded_at
 			FROM commands
 			WHERE git_repo = ?
-			ORDER BY recorded_at DESC
+			ORDER BY recorded_at DESC, id DESC
 			LIMIT ?`, gitRepo, limit)
 	} else {
 		rows, err = db.Query(`
 			SELECT id, command, directory, git_repo, git_branch,
 			       exit_code, duration_ms, session_id, hostname, recorded_at
 			FROM commands
-			ORDER BY recorded_at DESC
+			ORDER BY recorded_at DESC, id DESC
 			LIMIT ?`, limit)
 	}
 	if err != nil {
