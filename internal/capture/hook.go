@@ -81,41 +81,46 @@ func InitShell(shell string) (string, error) {
 func bashHook(cfPath string) string {
 	return fmt.Sprintf(`
 # ContextFlow bash integration
+# Disable with: export CONTEXTFLOW_DISABLE=1
+[[ -n "$CONTEXTFLOW_DISABLE" ]] && return 0
+
 __cf_session_id="%s"
 __cf_cmd_start=0
 __cf_last_cmd=""
 
 __cf_preexec() {
-    __cf_cmd_start=$(date +%%s%%3N)
+    __cf_cmd_start=$(date +%%s%%3N 2>/dev/null || echo 0)
     __cf_last_cmd="$1"
 }
 
 __cf_precmd() {
     local exit_code=$?
-    if [[ -n "$__cf_last_cmd" && "$__cf_last_cmd" != "cf"* ]]; then
+    if [[ -n "$__cf_last_cmd" && "$__cf_last_cmd" != cf* && "$__cf_last_cmd" != __cf* ]]; then
         local now
-        now=$(date +%%s%%3N)
+        now=$(date +%%s%%3N 2>/dev/null || echo 0)
         local duration=$(( now - __cf_cmd_start ))
         %s record \
             --cmd "$__cf_last_cmd" \
             --dir "$PWD" \
             --exit "$exit_code" \
             --duration "$duration" \
-            --session "$__cf_session_id" &>/dev/null &
+            --session "$__cf_session_id" </dev/null &>/dev/null &
     fi
     __cf_last_cmd=""
 }
 
-# Install hooks using bash-preexec if available, else manual PROMPT_COMMAND
-if [[ $(type -t __bp_install) == "function" ]]; then
+# Prefer bash-preexec if available (https://github.com/rcaloras/bash-preexec)
+if [[ $(type -t __bp_install) == "function" ]] || [[ ${#preexec_functions[@]} -gt 0 ]]; then
     preexec_functions+=(__cf_preexec)
     precmd_functions+=(__cf_precmd)
 else
+    # Fallback: PROMPT_COMMAND + DEBUG trap
+    # Note: DEBUG trap fires for every command including subshells — we guard with __cf_last_cmd
     trap '__cf_preexec "$BASH_COMMAND"' DEBUG
     PROMPT_COMMAND="__cf_precmd${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 fi
 
-# Ctrl+R override
+# Ctrl+R override (fuzzy search)
 __cf_search() {
     local selected
     selected=$(%s search --print 2>/dev/null)
@@ -124,33 +129,37 @@ __cf_search() {
         READLINE_POINT=${#READLINE_LINE}
     fi
 }
-bind -x '"\C-r": __cf_search'
+bind -x '"\C-r": __cf_search' 2>/dev/null || true
 `, sessionID(), cfPath, cfPath)
 }
 
 func zshHook(cfPath string) string {
 	return fmt.Sprintf(`
 # ContextFlow zsh integration
+# Disable with: export CONTEXTFLOW_DISABLE=1
+[[ -n "$CONTEXTFLOW_DISABLE" ]] && return 0
+
 __cf_session_id="%s"
 __cf_cmd_start=0
 __cf_last_cmd=""
 
 __cf_preexec() {
-    __cf_cmd_start=$(($(date +%%s%%3N)))
+    __cf_cmd_start=$(date +%%s%%3N 2>/dev/null || echo 0)
     __cf_last_cmd="$1"
 }
 
 __cf_precmd() {
     local exit_code=$?
-    if [[ -n "$__cf_last_cmd" && "$__cf_last_cmd" != cf* ]]; then
-        local now=$(($(date +%%s%%3N)))
+    if [[ -n "$__cf_last_cmd" && "$__cf_last_cmd" != cf* && "$__cf_last_cmd" != __cf* ]]; then
+        local now
+        now=$(date +%%s%%3N 2>/dev/null || echo 0)
         local duration=$(( now - __cf_cmd_start ))
         %s record \
             --cmd "$__cf_last_cmd" \
             --dir "$PWD" \
             --exit "$exit_code" \
             --duration "$duration" \
-            --session "$__cf_session_id" &>/dev/null &
+            --session "$__cf_session_id" </dev/null &>/dev/null &
     fi
     __cf_last_cmd=""
 }
@@ -159,7 +168,7 @@ autoload -Uz add-zsh-hook
 add-zsh-hook preexec __cf_preexec
 add-zsh-hook precmd __cf_precmd
 
-# Ctrl+R override
+# Ctrl+R override (fuzzy search)
 __cf_search_widget() {
     local selected
     selected=$(%s search --print 2>/dev/null)
