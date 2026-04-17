@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,11 +16,13 @@ import (
 type ImportResult struct {
 	Total    int
 	Imported int
-	Skipped  int // duplicates or secrets
+	Skipped  int // secrets or errors
 }
 
-// ImportHistoryFile imports commands from a shell history file (bash/zsh format).
-// Lines starting with '#' (timestamps) are skipped; blank lines are skipped.
+// ImportHistoryFile imports commands from a shell history file.
+// Supports:
+//   - Plain format (bash):  <command>
+//   - Zsh extended format:  : <timestamp>:<duration>;<command>
 func ImportHistoryFile(path string, database *db.DB) (ImportResult, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -28,33 +31,59 @@ func ImportHistoryFile(path string, database *db.DB) (ImportResult, error) {
 	defer f.Close()
 
 	var result ImportResult
-	// Use a fixed past time, incrementing by 1s per command so ordering is preserved
+	// Fallback base time for entries without a timestamp
 	baseTime := time.Now().Add(-365 * 24 * time.Hour)
-	i := 0
+	fallbackOffset := 0
 
 	scanner := bufio.NewScanner(f)
+	scanner.Buffer(make([]byte, 1024*1024), 1024*1024) // handle long lines
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
+		line := scanner.Text()
+		if line == "" {
+			continue
+		}
+
+		cmd, ts := parseLine(line, baseTime, fallbackOffset)
+		if cmd == "" || strings.HasPrefix(cmd, "#") {
 			continue
 		}
 		result.Total++
+		fallbackOffset++
 
-		cmd := db.Command{
-			Command:    sanitize(line),
+		entry := db.Command{
+			Command:    sanitize(cmd),
 			Directory:  "",
-			RecordedAt: baseTime.Add(time.Duration(i) * time.Second),
+			RecordedAt: ts,
 			SessionID:  "import",
 		}
 
-		if _, err := database.RecordCommand(cmd); err != nil {
+		if _, err := database.RecordCommand(entry); err != nil {
 			result.Skipped++
 		} else {
 			result.Imported++
 		}
-		i++
 	}
 	return result, scanner.Err()
+}
+
+// parseLine handles both plain bash history and zsh extended history format.
+// Zsh extended format: ": <unix_ts>:<duration>;<command>"
+func parseLine(line string, baseTime time.Time, offset int) (cmd string, ts time.Time) {
+	// Zsh extended history: ": 1713000000:0;git push origin main"
+	if strings.HasPrefix(line, ": ") {
+		parts := strings.SplitN(line, ";", 2)
+		if len(parts) == 2 {
+			meta := strings.TrimPrefix(parts[0], ": ")
+			metaParts := strings.SplitN(meta, ":", 2)
+			if len(metaParts) == 2 {
+				if epoch, err := strconv.ParseInt(strings.TrimSpace(metaParts[0]), 10, 64); err == nil {
+					return strings.TrimSpace(parts[1]), time.Unix(epoch, 0)
+				}
+			}
+		}
+	}
+	// Plain format — use baseTime + offset for stable ordering
+	return strings.TrimSpace(line), baseTime.Add(time.Duration(offset) * time.Second)
 }
 
 // DetectHistoryFiles returns the likely shell history file paths for this system.

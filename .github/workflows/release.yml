@@ -34,6 +34,14 @@ jobs:
           tar czf cf-darwin-arm64.tar.gz  cf-darwin-arm64
           zip      cf-windows-amd64.zip   cf-windows-amd64.exe
 
+      - name: Compute SHA256s
+        run: |
+          cd dist
+          echo "darwin-arm64: $(sha256sum cf-darwin-arm64.tar.gz | cut -d' ' -f1)"
+          echo "darwin-amd64: $(sha256sum cf-darwin-amd64.tar.gz | cut -d' ' -f1)"
+          echo "linux-arm64:  $(sha256sum cf-linux-arm64.tar.gz  | cut -d' ' -f1)"
+          echo "linux-amd64:  $(sha256sum cf-linux-amd64.tar.gz  | cut -d' ' -f1)"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
