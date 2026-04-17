@@ -23,7 +23,7 @@ func Record(command, directory string, exitCode int, durationMs int64, sessionID
 	hostname, _ := os.Hostname()
 
 	cmd := db.Command{
-		Command:    command,
+		Command:    sanitize(command),
 		Directory:  directory,
 		GitRepo:    gitRemote(directory),
 		GitBranch:  gitBranch(directory),

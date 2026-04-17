@@ -5,133 +5,177 @@
 [![CI](https://github.com/Luv-Goel/contextflow/actions/workflows/ci.yml/badge.svg)](https://github.com/Luv-Goel/contextflow/actions)
 [![Go version](https://img.shields.io/github/go-mod/go-version/Luv-Goel/contextflow)](go.mod)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/Luv-Goel/contextflow)](https://github.com/Luv-Goel/contextflow/releases)
+[![Release](https://img.shields.io/github/v/release/Luv-Goel/contextflow?include_prereleases)](https://github.com/Luv-Goel/contextflow/releases)
 
 ---
 
-<!--
-  TODO before launch: add demo GIF here
-  Use `vhs` (https://github.com/charmbracelet/vhs) to record
--->
+<!-- Demo GIF goes here — record with: vhs demo/demo.tape -->
 
-Every developer has typed `history | grep` in desperation. You know a command exists somewhere — you just can't find the *workflow* around it. What did you run before that? What directory were you in? What project?
+Every developer has typed `history | grep` in desperation. You know a command exists somewhere — you just can't find the *sequence* around it. What else did you run? In what directory? For which project?
 
-**ContextFlow** remembers workflows, not just commands:
+**ContextFlow** remembers the workflow, not just the command.
 
-- 🔍 **Fuzzy search** your entire history with a beautiful TUI (`Ctrl+R` replacement)
-- 🧠 **Workflow detection** — auto-groups related commands by project and time
-- 🔁 **Replay** any past workflow step-by-step
-- 📤 **Export** workflows as shell scripts or markdown runbooks
+---
+
+## Features
+
+- 🔍 **Fuzzy search TUI** — beautiful Ctrl+R replacement with project context
+- 🧠 **Workflow detection** — auto-groups related commands by git repo + session
+- 🔁 **Replay** — step through any past workflow interactively  
+- 📤 **Export** — workflows as `.sh` scripts or Markdown runbooks
+- 📊 **Stats** — most-used commands, busiest repos, session analytics
+- 📥 **Import** — bring in your existing `~/.bash_history` / `~/.zsh_history`
+- 🔒 **Secret filtering** — tokens, passwords, and API keys are never recorded
 - 📁 **Project-aware** — history linked to git repos, not just directories
+- 💾 **Local-first** — everything in `~/.contextflow/history.db` (SQLite), nothing uploaded
 
 ---
 
 ## Install
 
+**One-liner (Linux & macOS):**
+
 ```bash
-# One-liner
 curl -fsSL https://raw.githubusercontent.com/Luv-Goel/contextflow/main/scripts/install.sh | bash
 ```
 
+**Homebrew (coming soon):**
+
 ```bash
-# Homebrew (coming soon)
 brew install Luv-Goel/tap/contextflow
 ```
 
-Then add to your shell:
+**Build from source:**
 
 ```bash
-# ~/.bashrc
+git clone https://github.com/Luv-Goel/contextflow
+cd contextflow
+go build -o ~/bin/cf ./cmd/cf
+```
+
+---
+
+## Setup
+
+Add to your shell config and restart:
+
+```bash
+# bash — add to ~/.bashrc
 eval "$(cf init bash)"
 
-# ~/.zshrc
+# zsh — add to ~/.zshrc
 eval "$(cf init zsh)"
 
-# ~/.config/fish/config.fish
+# fish — add to ~/.config/fish/config.fish
 cf init fish | source
 ```
 
-Restart your shell and press **Ctrl+R** to try it.
+Then press **Ctrl+R** to search, or run `cf workflows` to explore.
+
+**Import your existing history:**
+
+```bash
+cf import   # auto-detects ~/.bash_history and ~/.zsh_history
+```
 
 ---
 
 ## Usage
 
 ```bash
-# Search history (Ctrl+R replacement)
+# Search (Ctrl+R replacement — fuzzy TUI)
 cf search
 cf search "docker"
 
 # Browse auto-detected workflows
 cf workflows
 
-# Replay a workflow step-by-step
+# Step through a workflow interactively
 cf replay 42
 
-# Dry run (preview without executing)
+# Preview without executing
 cf replay 42 --dry-run
 
 # Export as shell script
 cf export 42 > setup.sh
 
-# Export as markdown runbook
+# Export as Markdown runbook
 cf export 42 --format md > RUNBOOK.md
+
+# Give a workflow a name
+cf tag 42 "my docker setup"
+
+# Usage statistics
+cf stats
+
+# Delete a workflow
+cf delete 42
+
+# Import existing shell history
+cf import
+cf import ~/.zsh_history
 ```
 
 ---
 
-## How workflow detection works
+## How Workflow Detection Works
 
-ContextFlow groups commands into workflows when they are:
-- In the **same git repository** (or same directory)
-- Within **30 minutes** of each other
-- In the **same terminal session**
+ContextFlow automatically groups commands into workflows when they are:
 
-So your "docker setup", "deploy to prod", or "new project bootstrap" sequences are automatically recognized and replayable — without any manual tagging.
+1. Recorded in the **same terminal session**
+2. Within **30 minutes** of each other  
+3. In the **same git repository** or directory
+
+So if you ran `docker build`, `docker run`, `docker ps`, and `curl localhost:8080` in one session — that's a workflow. Name it "docker-setup" and replay it any time.
+
+**No manual tagging required.** Just work normally.
 
 ---
 
-## Why not Atuin?
+## Privacy & Security
+
+- All data stored in `~/.contextflow/history.db` — never leaves your machine
+- **Secret filtering** — commands matching patterns for passwords, tokens, API keys, and credentials are recorded as `[redacted]` automatically
+- No telemetry, no analytics, no accounts, no network calls
+
+---
+
+## Why Not Atuin?
 
 | Feature | Atuin | ContextFlow |
 |---------|-------|-------------|
 | Fuzzy search TUI | ✅ | ✅ |
-| Cross-machine sync | ✅ | ❌ (planned) |
-| E2E encrypted sync | ✅ | ❌ |
+| Cross-machine sync | ✅ | — (planned) |
+| E2E encrypted sync | ✅ | — |
 | **Workflow detection** | ❌ | ✅ |
-| **Replay workflows** | ❌ | ✅ |
+| **Workflow replay** | ❌ | ✅ |
 | **Export as script/runbook** | ❌ | ✅ |
 | **Git repo awareness** | ❌ | ✅ |
+| **Secret filtering** | ❌ | ✅ |
+| **Usage stats** | partial | ✅ |
+| **History import** | ✅ | ✅ |
 | Single binary | ✅ | ✅ |
 | Local-first | ✅ | ✅ |
 
-**They're complementary.** Atuin excels at sync + search. ContextFlow adds workflow intelligence on top. (Atuin import coming in v0.2.)
-
----
-
-## Data & Privacy
-
-All data is stored locally in `~/.contextflow/history.db` (SQLite).  
-Nothing is ever uploaded anywhere. No accounts, no servers, no telemetry.
+They're complementary. **Atuin** is best for sync + search across machines. **ContextFlow** is best for understanding and replaying what you actually did. Use both — Atuin import is in v0.2.
 
 ---
 
 ## Roadmap
 
-- [x] v0.1 — Shell hooks, fuzzy search TUI, workflow detection, replay, export
-- [ ] v0.2 — Fish support, Atuin import, `cf stats`, manual workflow tagging
-- [ ] v0.3 — Natural language search, team snippet sharing
+- [x] v0.1 — Shell hooks (bash/zsh/fish), fuzzy search TUI, workflow detection, replay, export, stats, import, secret filtering
+- [ ] v0.2 — Atuin import, `cf share` (Gist export), improved workflow naming, Fish history import
+- [ ] v0.3 — Natural language search, team snippet library, VS Code extension
 
 ---
 
 ## Contributing
 
-PRs and issues welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) (coming soon).
+PRs and issues are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```bash
 git clone https://github.com/Luv-Goel/contextflow
 cd contextflow
-go build ./...
 go test ./...
 ```
 
@@ -143,4 +187,4 @@ MIT © [Luv-Goel](https://github.com/Luv-Goel)
 
 ---
 
-*Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) 🧋*
+*Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) 🧋 · Powered by SQLite · Zero cloud dependencies*
