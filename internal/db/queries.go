@@ -179,6 +179,22 @@ func (db *DB) SaveWorkflow(w Workflow) (int64, error) {
 	return wID, nil
 }
 
+// GetCommandsSince returns commands recorded within the given duration.
+func (db *DB) GetCommandsSince(d time.Duration) ([]Command, error) {
+	since := time.Now().Add(-d).Unix()
+	rows, err := db.Query(`
+		SELECT id, command, directory, git_repo, git_branch,
+		       exit_code, duration_ms, session_id, hostname, recorded_at
+		FROM commands
+		WHERE recorded_at >= ?
+		ORDER BY recorded_at ASC`, since)
+	if err != nil {
+		return nil, fmt.Errorf("commands since: %w", err)
+	}
+	defer rows.Close()
+	return scanCommands(rows)
+}
+
 func nullString(s string) sql.NullString {
 	return sql.NullString{String: s, Valid: s != ""}
 }
