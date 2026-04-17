@@ -107,7 +107,7 @@ func (m WorkflowsModel) View() string {
 			name = fmt.Sprintf("workflow #%d", w.ID)
 		}
 
-		header := fmt.Sprintf("  📋 %s", name)
+		header := fmt.Sprintf("  📋 #%-4d %s", w.ID, name)
 		if w.GitRepo != "" {
 			header += workflowDimStyle.Render("  " + repoName(w.GitRepo))
 		}
@@ -133,6 +133,10 @@ func (m WorkflowsModel) View() string {
 		sb.WriteString("\n")
 	}
 
+	sb.WriteString("\n" + workflowDimStyle.Render("  enter") + workflowTitleStyle.Render(" select") +
+		workflowDimStyle.Render("   cf replay <id>") + workflowTitleStyle.Render(" run") +
+		workflowDimStyle.Render("   cf tag <id> <name>") + workflowTitleStyle.Render(" rename") +
+		workflowDimStyle.Render("   esc quit"))
 	return sb.String()
 }
 
