@@ -3,13 +3,12 @@
 > **Shell history that understands your workflows, not just your commands.**
 
 [![CI](https://github.com/Luv-Goel/contextflow/actions/workflows/ci.yml/badge.svg)](https://github.com/Luv-Goel/contextflow/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Luv-Goel/contextflow)](https://goreportcard.com/report/github.com/Luv-Goel/contextflow)
 [![Go version](https://img.shields.io/github/go-mod/go-version/Luv-Goel/contextflow)](go.mod)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Luv-Goel/contextflow?include_prereleases)](https://github.com/Luv-Goel/contextflow/releases)
 
 ---
-
-<!-- Demo GIF goes here — record with: vhs demo/demo.tape -->
 
 Every developer has typed `history | grep` in desperation. You know a command exists somewhere — you just can't find the *sequence* around it. What else did you run? In what directory? For which project?
 
