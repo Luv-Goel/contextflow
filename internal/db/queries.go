@@ -198,3 +198,23 @@ func (db *DB) GetCommandsSince(d time.Duration) ([]Command, error) {
 func nullString(s string) sql.NullString {
 	return sql.NullString{String: s, Valid: s != ""}
 }
+
+// UpdateWorkflowName updates a workflow's name.
+func (db *DB) UpdateWorkflowName(id int64, name string) error {
+	_, err := db.Exec(`
+		UPDATE workflows SET name = ?, updated_at = ?
+		WHERE id = ?`, name, time.Now().Unix(), id)
+	if err != nil {
+		return fmt.Errorf("update workflow name: %w", err)
+	}
+	return nil
+}
+
+// DeleteWorkflow deletes a workflow and its commands.
+func (db *DB) DeleteWorkflow(id int64) error {
+	_, err := db.Exec(`DELETE FROM workflows WHERE id = ?`, id)
+	if err != nil {
+		return fmt.Errorf("delete workflow: %w", err)
+	}
+	return nil
+}
