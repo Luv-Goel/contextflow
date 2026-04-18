@@ -193,3 +193,31 @@ MIT © [Luv-Goel](https://github.com/Luv-Goel)
 ---
 
 *Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) 🧋 · Powered by SQLite · Zero cloud dependencies*
+
+---
+
+## Commands Reference
+
+| Command | Description |
+|---------|-------------|
+| `cf version` | Show ContextFlow version |
+| `cf init` | Output shell hook configuration |
+| `cf search [query]` | Search command history (fuzzy TUI) |
+| `cf workflows` | Browse auto-detected workflows |
+| `cf replay <id>` | Replay a workflow interactively |
+| `cf export <id>` | Export workflow as script or runbook |
+| `cf stats` | Show usage statistics |
+| `cf story` | Generate narrative summary of your work |
+| `cf tag <id> <name>` | Give a workflow a custom name |
+| `cf delete <id>` | Delete a workflow |
+| `cf import [file]` | Import existing shell history |
+| `cf hook` | Output shell integration script |
+| `cf record` | Record a command (internal use) |
+| `cf uninstall` | Remove ContextFlow completely |
+
+### Options
+
+- `cf search -p` — Plain text output (no TUI)
+- `cf search -n 100` — Limit results to 100
+- `cf export <id> -f md` — Export as Markdown runbook
+- `cf replay --dry-run` — Preview without executing
