@@ -39,6 +39,8 @@ search, replay, and export them.`,
 	rootCmd.AddCommand(storyCmd())
 	rootCmd.AddCommand(hookCmd())
 	rootCmd.AddCommand(recordCmd())
+	rootCmd.AddCommand(uninstallCmd())
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "cf: %v\n", err)
 		os.Exit(1)
@@ -348,4 +350,34 @@ func timeSince(t time.Time) string {
 		return fmt.Sprintf("%dh", int(d.Hours()))
 	}
 	return fmt.Sprintf("%dd", int(d.Hours()/24))
+}
+func uninstallCmd() *cobra.Command {
+	var confirm bool
+	cmd := &cobra.Command{
+		Use:   "uninstall",
+		Short: "Remove ContextFlow completely from system",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if !confirm {
+				fmt.Println("Run with --confirm to uninstall")
+				fmt.Println("This will delete ~/.contextflow/ and remove the binary")
+				return nil
+			}
+			dir, err := db.DataDir()
+			if err != nil {
+				return err
+			}
+			if err := os.RemoveAll(dir); err != nil {
+				return fmt.Errorf("remove data dir: %w", err)
+			}
+			binPath, err := os.Executable()
+			if err == nil {
+				os.Remove(binPath)
+			}
+			fmt.Println("ContextFlow uninstalled")
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&confirm, "confirm", false, "Confirm uninstallation")
+	return cmd
 }
