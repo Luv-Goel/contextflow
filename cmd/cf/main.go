@@ -4,10 +4,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 	"github.com/Luv-Goel/contextflow/internal/capture"
 	"github.com/Luv-Goel/contextflow/internal/db"
-	
+	"github.com/Luv-Goel/contextflow/internal/export"
 	"github.com/Luv-Goel/contextflow/internal/story"
 	"github.com/Luv-Goel/contextflow/internal/workflow"
 	"github.com/spf13/cobra"
@@ -190,9 +191,24 @@ func exportCmd() *cobra.Command {
 		Short: "Export workflow as script or runbook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			id := args[0]
-			// TODO: Fetch workflow from DB and export
-			fmt.Printf("(Export not wired yet — workflow #%s as %s)\n", id, format)
+			database, err := openDB()
+			if err != nil {
+				return err
+			}
+			defer database.Close()
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("invalid workflow id: %w", err)
+			}
+			w, err := database.GetWorkflowByID(id)
+			if err != nil {
+				return fmt.Errorf("get workflow: %w", err)
+			}
+			if format == "md" {
+				fmt.Print(export.ToMarkdown(w))
+			} else {
+				fmt.Print(export.ToShellScript(w))
+			}
 			return nil
 		},
 	}
