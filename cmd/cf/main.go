@@ -10,7 +10,6 @@ import (
 
 	"github.com/Luv-Goel/contextflow/internal/capture"
 	"github.com/Luv-Goel/contextflow/internal/db"
-	"github.com/Luv-Goel/contextflow/internal/export"
 	"github.com/Luv-Goel/contextflow/internal/story"
 	"github.com/Luv-Goel/contextflow/internal/workflow"
 	"github.com/spf13/cobra"
