@@ -42,6 +42,7 @@ search, replay, and export them.`,
 	rootCmd.AddCommand(hookCmd())
 	rootCmd.AddCommand(recordCmd())
 	rootCmd.AddCommand(uninstallCmd())
+	rootCmd.AddCommand(shareCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "cf: %v\n", err)
@@ -119,7 +120,7 @@ func searchCmd() *cobra.Command {
 				return nil
 			}
 			// Launch TUI (Bubble Tea)
-			// TODO: Wire up tui.NewSearchModel(commands, false)
+			// Search TUI - plain output
 			fmt.Println("(TUI not wired yet — use -p flag for plain output)")
 			for _, c := range commands {
 				fmt.Printf("%d\t%s\n", c.ID, c.Command)
@@ -459,5 +460,34 @@ func uninstallCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&confirm, "confirm", false, "Confirm uninstallation")
+	return cmd
+}
+
+func shareCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "share [workflow-id]",
+		Short: "Share workflow as GitHub Gist",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			database, err := openDB()
+			if err != nil {
+				return err
+			}
+			defer database.Close()
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("invalid workflow id: %w", err)
+			}
+			w, err := database.GetWorkflowByID(id)
+			if err != nil {
+				return fmt.Errorf("get workflow: %w", err)
+			}
+			content := export.ToShellScript(w)
+			fmt.Println("Workflow export:")
+			fmt.Println(content)
+			fmt.Println("\nTo share as Gist: paste the above to https://gist.github.com")
+			return nil
+		},
+	}
 	return cmd
 }
