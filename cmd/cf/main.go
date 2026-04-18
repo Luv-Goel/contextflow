@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 	"github.com/Luv-Goel/contextflow/internal/capture"
 	"github.com/Luv-Goel/contextflow/internal/db"
@@ -336,15 +337,49 @@ func storyCmd() *cobra.Command {
 			defer database.Close()
 			d := 24 * time.Hour // default: last 24 hours
 			if since != "" {
-				// TODO: Parse duration string
+				d, err = parseDuration(since)
+				if err != nil {
+					return fmt.Errorf("invalid duration: %w", err)
+				}
 			}
 			narrative := story.Generate(database, d)
 			fmt.Println(narrative)
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&since, "since", "24h", "Duration (e.g., 24h, 7d)")
+	cmd.Flags().StringVar(&since, "since", "24h", "Duration (e.g., 24h, 7d, 1h, 30m)")
 	return cmd
+}
+
+func parseDuration(s string) (time.Duration, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 24 * time.Hour, nil
+	}
+	// Parse suffix
+	var num int64
+	var suffix string
+	for i, r := range s {
+		if r >= '0' && r <= '9' {
+			continue
+		}
+		numStr := s[:i]
+		suffix = s[i:]
+		fmt.Sscanf(numStr, "%d", &num)
+		break
+	}
+	switch suffix {
+	case "m", "min":
+		return time.Duration(num) * time.Minute, nil
+	case "h", "hr":
+		return time.Duration(num) * time.Hour, nil
+	case "d":
+		return time.Duration(num) * 24 * time.Hour, nil
+	case "w":
+		return time.Duration(num) * 7 * 24 * time.Hour, nil
+	default:
+		return 0, fmt.Errorf("unknown suffix %q (use: m, h, d, w)", suffix)
+	}
 }
 func hookCmd() *cobra.Command {
 	var shell string
