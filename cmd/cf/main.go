@@ -294,8 +294,28 @@ func importCmd() *cobra.Command {
 			if len(args) > 0 {
 				path = args[0]
 			}
-			// TODO: Wire up history import
-			fmt.Printf("(Import not wired yet — would import %s)\n", path)
+			if path == "" {
+				// Auto-detect
+				home := os.ExpandEnv("$HOME")
+				if _, err := os.Stat(home + "/.bash_history"); err == nil {
+					path = home + "/.bash_history"
+				} else if _, err := os.Stat(home + "/.zsh_history"); err == nil {
+					path = home + "/.zsh_history"
+				}
+			}
+			if path == "" {
+				return fmt.Errorf("no history file found, use cf import <path>")
+			}
+			database, err := openDB()
+			if err != nil {
+				return err
+			}
+			defer database.Close()
+			result, err := capture.ImportHistoryFile(path, database)
+			if err != nil {
+				return fmt.Errorf("import: %w", err)
+			}
+			fmt.Printf("Imported %d commands (%d skipped)\n", result.Imported, result.Skipped)
 			return nil
 		},
 	}
