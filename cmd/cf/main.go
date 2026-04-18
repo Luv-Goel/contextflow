@@ -43,6 +43,7 @@ search, replay, and export them.`,
 	rootCmd.AddCommand(recordCmd())
 	rootCmd.AddCommand(uninstallCmd())
 	rootCmd.AddCommand(shareCmd())
+	rootCmd.AddCommand(installCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "cf: %v\n", err)
@@ -486,6 +487,21 @@ func shareCmd() *cobra.Command {
 			fmt.Println("Workflow export:")
 			fmt.Println(content)
 			fmt.Println("\nTo share as Gist: paste the above to https://gist.github.com")
+			return nil
+		},
+	}
+	return cmd
+}
+
+// cf install command - quick install script download
+func installCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "install",
+		Short: "Download and install the shell hook",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			fmt.Println("Run: curl -fsSL https://git.io/cf-init | bash")
+			fmt.Println("Or: cf init bash")
 			return nil
 		},
 	}
