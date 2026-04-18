@@ -218,3 +218,35 @@ func (db *DB) DeleteWorkflow(id int64) error {
 	}
 	return nil
 }
+
+// GetWorkflowByID returns a workflow by ID with its commands.
+func (db *DB) GetWorkflowByID(id int64) (Workflow, error) {
+	var w Workflow
+	var name sql.NullString
+	var createdAt, updatedAt int64
+	err := db.QueryRow(`
+		SELECT id, name, git_repo, created_at, updated_at
+		FROM workflows WHERE id = ?`, id).
+		Scan(&w.ID, &name, &w.GitRepo, &createdAt, &updatedAt)
+	if err != nil {
+		return w, fmt.Errorf("get workflow: %w", err)
+	}
+	w.Name = name.String
+	w.CreatedAt = time.Unix(createdAt, 0)
+	w.UpdatedAt = time.Unix(updatedAt, 0)
+
+	// Get commands
+	rows, err := db.Query(`
+		SELECT c.id, c.command, c.directory, c.git_repo, c.git_branch,
+		       c.exit_code, c.duration_ms, c.session_id, c.hostname, c.recorded_at
+		FROM workflow_commands wc
+		JOIN commands c ON wc.command_id = c.id
+		WHERE wc.workflow_id = ?
+		ORDER BY wc.position`, id)
+	if err != nil {
+		return w, fmt.Errorf("get workflow commands: %w", err)
+	}
+	defer rows.Close()
+	w.Commands, err = scanCommands(rows)
+	return w, err
+}
