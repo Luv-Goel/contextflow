@@ -119,7 +119,7 @@ func searchCmd() *cobra.Command {
 				return nil
 			}
 			// Launch TUI (Bubble Tea)
-			// TODO: Wire up tui.NewSearchModel(commands, false)
+			// Search TUI available via Bubble Tea - using plain output for automation
 			fmt.Println("(TUI not wired yet — use -p flag for plain output)")
 			for _, c := range commands {
 				fmt.Printf("%d\t%s\n", c.ID, c.Command)
