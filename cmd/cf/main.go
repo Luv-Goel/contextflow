@@ -1,38 +1,31 @@
 // ContextFlow CLI — Shell history that understands your workflows.
 // cmd/cf/main.go - CLI entry point
-
 package main
-
 import (
 	"fmt"
 	"os"
 	"time"
-
 	"github.com/Luv-Goel/contextflow/internal/capture"
 	"github.com/Luv-Goel/contextflow/internal/db"
+	
 	"github.com/Luv-Goel/contextflow/internal/story"
 	"github.com/Luv-Goel/contextflow/internal/workflow"
 	"github.com/spf13/cobra"
 )
-
 var (
 	version   = "v0.1.0"
 	printOnly bool
 )
-
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "cf",
 		Short: "ContextFlow — Shell history that understands your workflows",
 		Long:  `ContextFlow remembers the workflow, not just the command.
-
 Every developer has typed 'history | grep' in desperation. You know a command 
 exists somewhere — you just can't find the sequence around it.
-
 ContextFlow automatically groups related commands into workflows and lets you 
 search, replay, and export them.`,
 	}
-
 	rootCmd.AddCommand(versionCmd())
 	rootCmd.AddCommand(initCmd())
 	rootCmd.AddCommand(searchCmd())
@@ -46,13 +39,11 @@ search, replay, and export them.`,
 	rootCmd.AddCommand(storyCmd())
 	rootCmd.AddCommand(hookCmd())
 	rootCmd.AddCommand(recordCmd())
-
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "cf: %v\n", err)
 		os.Exit(1)
 	}
 }
-
 func versionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
@@ -62,10 +53,8 @@ func versionCmd() *cobra.Command {
 		},
 	}
 }
-
 func initCmd() *cobra.Command {
 	var shell string
-
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Output shell hook configuration",
@@ -84,11 +73,9 @@ func initCmd() *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVar(&shell, "shell", "", "Shell type (bash, zsh, fish)")
 	return cmd
 }
-
 func openDB() (*db.DB, error) {
 	database, err := db.Open()
 	if err != nil {
@@ -96,10 +83,8 @@ func openDB() (*db.DB, error) {
 	}
 	return database, nil
 }
-
 func searchCmd() *cobra.Command {
 	var limit int
-
 	cmd := &cobra.Command{
 		Use:   "search [query]",
 		Short: "Search command history (Ctrl+R replacement)",
@@ -109,13 +94,11 @@ func searchCmd() *cobra.Command {
 			if len(args) > 0 {
 				query = args[0]
 			}
-
 			database, err := openDB()
 			if err != nil {
 				return err
 			}
 			defer database.Close()
-
 			var commands []db.Command
 			if query == "" {
 				commands, err = database.RecentCommands("", limit)
@@ -125,14 +108,12 @@ func searchCmd() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("search: %w", err)
 			}
-
 			if printOnly {
 				for _, c := range commands {
 					fmt.Printf("%d\t%s\n", c.ID, c.Command)
 				}
 				return nil
 			}
-
 			// Launch TUI (Bubble Tea)
 			// TODO: Wire up tui.NewSearchModel(commands, false)
 			fmt.Println("(TUI not wired yet — use -p flag for plain output)")
@@ -142,12 +123,10 @@ func searchCmd() *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().IntVarP(&limit, "limit", "n", 50, "Maximum number of results")
 	cmd.Flags().BoolVarP(&printOnly, "print", "p", false, "Plain text output (no TUI)")
 	return cmd
 }
-
 func workflowsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workflows",
@@ -159,19 +138,16 @@ func workflowsCmd() *cobra.Command {
 				return err
 			}
 			defer database.Close()
-
 			commands, err := database.RecentCommands("", 500)
 			if err != nil {
 				return fmt.Errorf("get commands: %w", err)
 			}
-
 			workflows := workflow.Detect(commands)
 			if len(workflows) == 0 {
 				fmt.Println("No workflows detected yet.")
 				fmt.Println("Keep using your shell — ContextFlow will auto-detect workflows.")
 				return nil
 			}
-
 			fmt.Printf("Found %d workflows:\n\n", len(workflows))
 			for _, w := range workflows {
 				age := time.Since(w.UpdatedAt)
@@ -186,10 +162,8 @@ func workflowsCmd() *cobra.Command {
 	}
 	return cmd
 }
-
 func replayCmd() *cobra.Command {
 	var dryRun bool
-
 	cmd := &cobra.Command{
 		Use:   "replay [workflow-id]",
 		Short: "Replay a workflow interactively",
@@ -204,14 +178,11 @@ func replayCmd() *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview without executing")
 	return cmd
 }
-
 func exportCmd() *cobra.Command {
 	var format string
-
 	cmd := &cobra.Command{
 		Use:   "export [workflow-id]",
 		Short: "Export workflow as script or runbook",
@@ -223,11 +194,9 @@ func exportCmd() *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVarP(&format, "format", "f", "sh", "Output format: sh (shell script), md (markdown)")
 	return cmd
 }
-
 func statsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stats",
@@ -239,12 +208,10 @@ func statsCmd() *cobra.Command {
 				return err
 			}
 			defer database.Close()
-
 			stats, err := database.GetStats()
 			if err != nil {
 				return fmt.Errorf("get stats: %w", err)
 			}
-
 			fmt.Printf("ContextFlow Statistics\n")
 			fmt.Printf("======================\n\n")
 			fmt.Printf("Total commands:  %d\n", stats.TotalCommands)
@@ -261,7 +228,6 @@ func statsCmd() *cobra.Command {
 	}
 	return cmd
 }
-
 func tagCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tag [workflow-id] [name]",
@@ -275,7 +241,6 @@ func tagCmd() *cobra.Command {
 	}
 	return cmd
 }
-
 func deleteCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete [workflow-id]",
@@ -289,10 +254,8 @@ func deleteCmd() *cobra.Command {
 	}
 	return cmd
 }
-
 func importCmd() *cobra.Command {
 	var file string
-
 	cmd := &cobra.Command{
 		Use:   "import [file]",
 		Short: "Import existing shell history",
@@ -307,14 +270,11 @@ func importCmd() *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVarP(&file, "file", "f", "", "History file to import")
 	return cmd
 }
-
 func storyCmd() *cobra.Command {
 	var since string
-
 	cmd := &cobra.Command{
 		Use:   "story",
 		Short: "Generate a narrative summary of your work",
@@ -325,25 +285,20 @@ func storyCmd() *cobra.Command {
 				return err
 			}
 			defer database.Close()
-
 			d := 24 * time.Hour // default: last 24 hours
 			if since != "" {
 				// TODO: Parse duration string
 			}
-
 			narrative := story.Generate(database, d)
 			fmt.Println(narrative)
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVar(&since, "since", "24h", "Duration (e.g., 24h, 7d)")
 	return cmd
 }
-
 func hookCmd() *cobra.Command {
 	var shell string
-
 	cmd := &cobra.Command{
 		Use:   "hook",
 		Short: "Output shell integration script",
@@ -357,11 +312,9 @@ func hookCmd() *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVar(&shell, "shell", "", "Shell type (bash, zsh, fish)")
 	return cmd
 }
-
 func recordCmd() *cobra.Command {
 	var (
 		cmdStr    string
@@ -370,7 +323,6 @@ func recordCmd() *cobra.Command {
 		duration int64
 		session  string
 	)
-
 	cmd := &cobra.Command{
 		Use:   "record",
 		Short: "Record a command (internal use)",
@@ -379,7 +331,6 @@ func recordCmd() *cobra.Command {
 			return capture.Record(cmdStr, dir, exitCode, duration*1000000, session)
 		},
 	}
-
 	cmd.Flags().StringVar(&cmdStr, "cmd", "", "Command to record")
 	cmd.Flags().StringVar(&dir, "dir", "", "Working directory")
 	cmd.Flags().IntVar(&exitCode, "exit", 0, "Exit code")
@@ -387,9 +338,7 @@ func recordCmd() *cobra.Command {
 	cmd.Flags().StringVar(&session, "session", "", "Session ID")
 	return cmd
 }
-
 // Helpers
-
 func timeSince(t time.Time) string {
 	d := time.Since(t)
 	if d < time.Hour {
