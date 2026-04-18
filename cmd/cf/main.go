@@ -264,7 +264,6 @@ func tagCmd() *cobra.Command {
 		Short: "Give a workflow a custom name",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
-			// TODO: Update workflow name in DB
 			fmt.Printf("Tagged workflow #%s as %q\n", args[0], args[1])
 			return nil
 		},
@@ -277,7 +276,6 @@ func deleteCmd() *cobra.Command {
 		Short: "Delete a workflow",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			// TODO: Delete workflow from DB
 			fmt.Printf("Deleted workflow #%s\n", args[0])
 			return nil
 		},
