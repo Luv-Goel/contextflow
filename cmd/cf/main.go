@@ -172,13 +172,24 @@ func replayCmd() *cobra.Command {
 		Short: "Replay a workflow interactively",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			id := args[0]
-			// TODO: Wire up interactive replay
-			fmt.Printf("(Replay TUI not wired yet — workflow #%s)\n", id)
-			if dryRun {
-				fmt.Println("Dry-run mode: would execute the following commands:")
+			database, err := openDB()
+			if err != nil {
+				return err
 			}
-			return nil
+			defer database.Close()
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("invalid workflow id: %w", err)
+			}
+			w, err := database.GetWorkflowByID(id)
+			if err != nil {
+				return fmt.Errorf("get workflow: %w", err)
+			}
+			mode := workflow.Interactive
+			if dryRun {
+				mode = workflow.DryRun
+			}
+			return workflow.Replay(w, mode)
 		},
 	}
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview without executing")
