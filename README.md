@@ -38,7 +38,13 @@ Every developer has typed `history | grep` in desperation. You know a command ex
 curl -fsSL https://raw.githubusercontent.com/Luv-Goel/contextflow/main/scripts/install.sh | bash
 ```
 
-**Homebrew (coming soon):**
+**go install (recommended):**
+
+```bash
+go install github.com/Luv-Goel/contextflow/cmd/cf@latest
+```
+
+**Homebrew:**
 
 ```bash
 brew install Luv-Goel/tap/contextflow
