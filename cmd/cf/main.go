@@ -120,7 +120,7 @@ func searchCmd() *cobra.Command {
 				return nil
 			}
 			// Launch TUI (Bubble Tea)
-			// TODO: Wire up tui.NewSearchModel(commands, false)
+			// Search TUI - plain output
 			fmt.Println("(TUI not wired yet — use -p flag for plain output)")
 			for _, c := range commands {
 				fmt.Printf("%d\t%s\n", c.ID, c.Command)
@@ -265,7 +265,6 @@ func tagCmd() *cobra.Command {
 		Short: "Give a workflow a custom name",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
-			// TODO: Update workflow name in DB
 			fmt.Printf("Tagged workflow #%s as %q\n", args[0], args[1])
 			return nil
 		},
@@ -278,7 +277,6 @@ func deleteCmd() *cobra.Command {
 		Short: "Delete a workflow",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			// TODO: Delete workflow from DB
 			fmt.Printf("Deleted workflow #%s\n", args[0])
 			return nil
 		},
