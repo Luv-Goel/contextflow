@@ -44,6 +44,7 @@ search, replay, and export them.`,
 	rootCmd.AddCommand(uninstallCmd())
 	rootCmd.AddCommand(shareCmd())
 	rootCmd.AddCommand(installCmd())
+	rootCmd.AddCommand(atuinCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "cf: %v\n", err)
@@ -502,6 +503,20 @@ func installCmd() *cobra.Command {
 		RunE: func(_ *cobra.Command, _ []string) error {
 			fmt.Println("Run: curl -fsSL https://git.io/cf-init | bash")
 			fmt.Println("Or: cf init bash")
+			return nil
+		},
+	}
+	return cmd
+}
+
+func atuinCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "atuin",
+		Short: "Import from Atuin history",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			fmt.Println("Atuin import - coming soon!")
+			fmt.Println("Preview: cf import --atuin to import from Atuin")
 			return nil
 		},
 	}
