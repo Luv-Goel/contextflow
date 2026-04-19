@@ -56,9 +56,9 @@ main() {
     echo ""
     echo "Next step — add to your shell config:"
     echo ""
-    echo "  bash:  echo 'eval \"\$(cf init bash)\"' >> ~/.bashrc && source ~/.bashrc"
-    echo "  zsh:   echo 'eval \"\$(cf init zsh)\"'  >> ~/.zshrc  && source ~/.zshrc"
-    echo "  fish:  echo 'cf init fish | source'    >> ~/.config/fish/config.fish"
+    echo "  bash:  echo 'eval \"\$(cf init --shell bash)\"' >> ~/.bashrc && source ~/.bashrc"
+    echo "  zsh:   echo 'eval \"\$(cf init --shell zsh)\"'  >> ~/.zshrc  && source ~/.zshrc"
+    echo "  fish:  echo 'cf init --shell fish | source'    >> ~/.config/fish/config.fish"
     echo ""
     echo "Then press Ctrl+R to search, or run 'cf workflows' to explore."
 }
