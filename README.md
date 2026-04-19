@@ -214,6 +214,9 @@ MIT © [Luv-Goel](https://github.com/Luv-Goel)
 | `cf hook` | Output shell integration script |
 | `cf record` | Record a command (internal use) |
 | `cf uninstall` | Remove ContextFlow completely |
+| `cf install` | Quick install instructions |
+| `cf atuin` | Import from Atuin |
+| `cf share` | Share workflow to Gist |
 
 ### Options
 
