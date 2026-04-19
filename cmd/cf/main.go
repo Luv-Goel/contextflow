@@ -69,11 +69,11 @@ func initCmd() *cobra.Command {
 		RunE: func(_ *cobra.Command, _ []string) error {
 			switch shell {
 			case "bash":
-				fmt.Printf("PROMPT_COMMAND=\"$(cf hook bash)\"\n")
+				fmt.Printf("PROMPT_COMMAND=\"$(cf hook --shell bash)\"\n")
 			case "zsh":
-				fmt.Printf("precmd() { cf hook zsh }\n")
+				fmt.Printf("precmd() { cf hook --shell zsh }\n")
 			case "fish":
-				fmt.Printf("function cf_hook --on-variable FISH_CLI_BEFORE_RESOLVE 2>/dev/null;\n  cf hook fish\nend\n")
+				fmt.Printf("function cf_hook --on-variable FISH_CLI_BEFORE_RESOLVE 2>/dev/null;\n  cf hook --shell fish\nend\n")
 			default:
 				return fmt.Errorf("unsupported shell: %s (use: bash, zsh, fish)", shell)
 			}
@@ -453,6 +453,10 @@ func uninstallCmd() *cobra.Command {
 			if err := os.RemoveAll(dir); err != nil {
 				return fmt.Errorf("remove data dir: %w", err)
 			}
+			// Also remove binary from common install paths
+			os.Remove("/usr/local/bin/cf")
+			os.Remove("/usr/bin/cf")
+			os.Remove(os.Getenv("HOME") + "/go/bin/cf")
 			binPath, err := os.Executable()
 			if err == nil {
 				os.Remove(binPath)
