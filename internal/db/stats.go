@@ -43,7 +43,7 @@ func (db *DB) GetStats() (Stats, error) {
 		return s, fmt.Errorf("stats sessions: %w", err)
 	}
 
-	if err := db.QueryRow(`SELECT COALESCE(AVG(duration_ms), 0) FROM commands WHERE duration_ms > 0`).
+	if err := db.QueryRow(`SELECT CAST(COALESCE(AVG(duration_ms), 0) AS INTEGER) FROM commands WHERE duration_ms > 0`).
 		Scan(&s.AvgDurationMs); err != nil {
 		return s, fmt.Errorf("stats avg duration: %w", err)
 	}

@@ -413,7 +413,7 @@ func recordCmd() *cobra.Command {
 		Short: "Record a command (internal use)",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return capture.Record(cmdStr, dir, exitCode, duration*1000000, session)
+			return capture.Record(cmdStr, dir, exitCode, duration/1000000, session)
 		},
 	}
 	cmd.Flags().StringVar(&cmdStr, "cmd", "", "Command to record")
