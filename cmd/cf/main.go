@@ -157,8 +157,9 @@ func workflowsCmd() *cobra.Command {
 			}
 			fmt.Printf("Found %d workflows:\n\n", len(workflows))
 			for _, w := range workflows {
+				wID, _ := database.SaveWorkflow(w)
 				age := time.Since(w.UpdatedAt)
-				fmt.Printf("#%d  %s  (%d commands, %s ago)\n", w.ID, w.Name, len(w.Commands), age)
+				fmt.Printf("#%d  %s  (%d commands, %s ago)\n", wID, w.Name, len(w.Commands), age)
 				if w.GitRepo != "" {
 					fmt.Printf("     Repo: %s\n", w.GitRepo)
 				}
