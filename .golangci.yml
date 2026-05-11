@@ -1,0 +1,34 @@
+# golangci-lint configuration for ContextFlow
+# See https://golangci-lint.run/usage/configuration/
+run:
+  timeout: 5m
+
+issues:
+  # Don't turn off default exclude rules
+  exclude-use-default: false
+  # Maximum issues count per linter
+  max-issues-per-linter: 0
+  # Maximum same issues count
+  max-same-issues: 0
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gofmt
+    - gocyclo
+    - goimports
+    - misspell
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+  errcheck:
+    check-type-assertions: true
+  misspell:
+    locale: US

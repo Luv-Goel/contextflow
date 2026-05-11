@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 var (
-	version   = "v0.1.10"
+	version   = "v0.1.15"
 	printOnly bool
 )
 func main() {

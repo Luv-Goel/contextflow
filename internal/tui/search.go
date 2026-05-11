@@ -10,6 +10,7 @@ import (
 	"github.com/sahilm/fuzzy"
 
 	"github.com/Luv-Goel/contextflow/internal/db"
+	"github.com/Luv-Goel/contextflow/internal/util"
 )
 
 var (
@@ -133,7 +134,7 @@ func (m SearchModel) View() string {
 			repo := repoName(cmd.GitRepo)
 			meta = repoStyle.Render(" " + repo)
 		} else if cmd.Directory != "" {
-			meta = dimStyle.Render(" " + shortDir(cmd.Directory))
+			meta = dimStyle.Render(" " + util.ShortDir(cmd.Directory))
 		}
 
 		if i == m.cursor {
@@ -182,12 +183,4 @@ func repoName(remote string) string {
 	return remote
 }
 
-func shortDir(dir string) string {
-	parts := strings.Split(dir, "/")
-	if len(parts) > 2 {
-		return "~/" + strings.Join(parts[len(parts)-2:], "/")
-	}
-	return dir
-}
-
-
+// shortDir is now in internal/util package — use util.ShortDir

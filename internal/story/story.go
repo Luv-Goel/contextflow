@@ -8,9 +8,14 @@ import (
 	"github.com/Luv-Goel/contextflow/internal/db"
 )
 
+// CommandProvider is the interface for fetching commands.
+type CommandProvider interface {
+	GetCommandsSince(d time.Duration) ([]db.Command, error)
+}
+
 // Generate creates a narrative from the recorded command history
-func Generate(database *db.DB, since time.Duration) string {
-	commands, err := database.GetCommandsSince(since)
+func Generate(provider CommandProvider, since time.Duration) string {
+	commands, err := provider.GetCommandsSince(since)
 	if err != nil || len(commands) == 0 {
 		return "No commands recorded in the last " + formatDuration(since)
 	}
