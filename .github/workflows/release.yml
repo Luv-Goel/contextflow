@@ -43,7 +43,7 @@ jobs:
           echo "linux-amd64:  $(sha256sum cf-linux-amd64.tar.gz  | cut -d' ' -f1)"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/*.tar.gz,dist/*.zip
           generate_release_notes: true
