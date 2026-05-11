@@ -67,7 +67,11 @@ func Open() (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	dbPath := filepath.Join(dir, "history.db")
+	return OpenPath(filepath.Join(dir, "history.db"))
+}
+
+// OpenPath opens a database at the specific path, creating it if needed.
+func OpenPath(dbPath string) (*DB, error) {
 	sqlDB, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=foreign_keys(on)")
 	if err != nil {
 		return nil, fmt.Errorf("cannot open database: %w", err)

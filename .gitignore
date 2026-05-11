@@ -3,3 +3,5 @@ dist/
 *.db-shm
 *.db-wal
 cf
+coverage.out
+*.test

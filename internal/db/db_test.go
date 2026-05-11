@@ -1,7 +1,7 @@
 package db
 
 import (
-	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -9,8 +9,7 @@ import (
 func tempDB(t *testing.T) *DB {
 	t.Helper()
 	dir := t.TempDir()
-	os.Setenv("HOME", dir) // DataDir() uses UserHomeDir
-	database, err := Open()
+	database, err := OpenPath(filepath.Join(dir, "test.db"))
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
