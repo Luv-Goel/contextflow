@@ -55,6 +55,7 @@ brew install Luv-Goel/tap/contextflow
 ```bash
 git clone https://github.com/Luv-Goel/contextflow
 cd contextflow
+go mod tidy
 go build -o ~/bin/cf ./cmd/cf
 ```
 
