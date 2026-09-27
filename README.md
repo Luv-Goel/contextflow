@@ -24,6 +24,10 @@ Every developer has typed `history | grep` in desperation. You know a command ex
 
 ## Features
 
+<p align="center">
+  <img src="screenshot-tui.svg" alt="ContextFlow Search TUI" width="100%">
+</p>
+
 - 🔍 **Fuzzy search TUI** — beautiful Ctrl+R replacement with project context
 - 🧠 **Workflow detection** — auto-groups related commands by git repo + session
 - 🔁 **Replay** — step through any past workflow interactively  
