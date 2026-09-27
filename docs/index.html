@@ -7,12 +7,16 @@
     <style>
         body { font-family: -apple-system, system-ui, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
         h1 { color: #5B42F3; }
-        code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
+        code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; color: #d63384; }
         pre { background: #282a36; color: #f8f8f2; padding: 1rem; border-radius: 8px; overflow-x: auto; font-family: monospace; }
+        pre code { background: transparent; padding: 0; color: inherit; border-radius: 0; }
         .hero { text-align: center; margin-bottom: 3rem; }
         .hero img { max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-top: 2rem; }
-        a { color: #5B42F3; text-decoration: none; }
+        a { color: #5B42F3; text-decoration: none; font-weight: bold; }
         a:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
@@ -22,12 +26,11 @@
         <p>
             <a href="https://github.com/Luv-Goel/contextflow">View on GitHub</a>
         </p>
-        <!-- The architecture.svg is at root so we reference it correctly in gh-pages -->
         <img src="https://raw.githubusercontent.com/Luv-Goel/contextflow/main/architecture.svg" alt="ContextFlow Architecture">
     </div>
     
     <h2>Why ContextFlow?</h2>
-    <p>Every developer has typed <code>history | grep</code> in desperation. You know a command exists somewhere — you just can't find the sequence around it. ContextFlow remembers the workflow, not just the command.</p>
+    <p>Every developer has typed <code>history | grep</code> in desperation. You know a command exists somewhere — you just can't find the sequence around it. ContextFlow remembers the workflow, not just the command. It automatically groups commands into workflows when they are executed in the same directory and session.</p>
     
     <h2>Features</h2>
     <ul>
@@ -37,20 +40,36 @@
         <li>📤 <strong>Export</strong> — workflows as <code>.sh</code> scripts or Markdown runbooks</li>
         <li>🗑️ <strong>Clean</strong> — quickly clear your history with <code>cf clean</code></li>
         <li>📊 <strong>Stats</strong> — most-used commands, busiest repos, session analytics</li>
+        <li>🔒 <strong>Privacy First</strong> — 100% local SQLite database. Secrets are automatically redacted.</li>
     </ul>
+
+    <h2>Interactive TUI</h2>
+    <p>Find what you're looking for instantly with our fast, fuzzy-finding Terminal User Interface.</p>
+    <img src="https://raw.githubusercontent.com/Luv-Goel/contextflow/main/screenshot-tui.svg" alt="ContextFlow Search TUI" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
 
     <h2>Installation</h2>
     <pre><code>go install github.com/Luv-Goel/contextflow/cmd/cf@latest</code></pre>
     
     <h3>Setup</h3>
     <p>Add to your shell config and restart:</p>
-    <pre><code># bash
+    <pre><code># bash — add to ~/.bashrc
 eval "$(cf init bash)"
 
-# zsh
+# zsh — add to ~/.zshrc
 eval "$(cf init zsh)"
 
-# fish
+# fish — add to ~/.config/fish/config.fish
 cf init fish | source</code></pre>
+
+    <h2>Command Reference</h2>
+    <table>
+        <tr><th>Command</th><th>Description</th></tr>
+        <tr><td><code>cf search [query]</code></td><td>Search command history (fuzzy TUI)</td></tr>
+        <tr><td><code>cf workflows</code></td><td>Browse auto-detected workflows</td></tr>
+        <tr><td><code>cf replay &lt;id&gt;</code></td><td>Replay a workflow interactively</td></tr>
+        <tr><td><code>cf export &lt;id&gt;</code></td><td>Export workflow as script or runbook</td></tr>
+        <tr><td><code>cf clean</code></td><td>Clear all recorded history</td></tr>
+        <tr><td><code>cf stats</code></td><td>Show usage statistics</td></tr>
+    </table>
 </body>
 </html>
