@@ -21,12 +21,12 @@ var (
 
 // WorkflowsModel is the Bubble Tea model for browsing workflows.
 type WorkflowsModel struct {
-	workflows  []db.Workflow
-	cursor     int
-	selected   *db.Workflow
-	quitting   bool
-	width      int
-	height     int
+	workflows []db.Workflow
+	cursor    int
+	selected  *db.Workflow
+	quitting  bool
+	width     int
+	height    int
 }
 
 // NewWorkflowsModel creates a workflow browser model.

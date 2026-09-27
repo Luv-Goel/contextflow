@@ -23,15 +23,15 @@ var (
 
 // SearchModel is the Bubble Tea model for the search TUI.
 type SearchModel struct {
-	input      textinput.Model
-	commands   []db.Command
-	filtered   []db.Command
-	cursor     int
-	selected   string
-	quitting   bool
-	printOnly  bool
-	width      int
-	height     int
+	input     textinput.Model
+	commands  []db.Command
+	filtered  []db.Command
+	cursor    int
+	selected  string
+	quitting  bool
+	printOnly bool
+	width     int
+	height    int
 }
 
 // NewSearchModel creates a search model pre-loaded with commands.

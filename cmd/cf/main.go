@@ -1,12 +1,15 @@
 // ContextFlow CLI — Shell history that understands your workflows.
 // cmd/cf/main.go - CLI entry point
 package main
+
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
 	"github.com/Luv-Goel/contextflow/internal/capture"
 	"github.com/Luv-Goel/contextflow/internal/db"
 	"github.com/Luv-Goel/contextflow/internal/export"
@@ -14,15 +17,17 @@ import (
 	"github.com/Luv-Goel/contextflow/internal/workflow"
 	"github.com/spf13/cobra"
 )
+
 var (
 	version   = "v0.1.15"
 	printOnly bool
 )
+
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "cf",
 		Short: "ContextFlow — Shell history that understands your workflows",
-		Long:  `ContextFlow remembers the workflow, not just the command.
+		Long: `ContextFlow remembers the workflow, not just the command.
 Every developer has typed 'history | grep' in desperation. You know a command 
 exists somewhere — you just can't find the sequence around it.
 ContextFlow automatically groups related commands into workflows and lets you 
@@ -45,6 +50,7 @@ search, replay, and export them.`,
 	rootCmd.AddCommand(shareCmd())
 	rootCmd.AddCommand(installCmd())
 	rootCmd.AddCommand(atuinCmd())
+	rootCmd.AddCommand(cleanCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "cf: %v\n", err)
@@ -403,7 +409,7 @@ func hookCmd() *cobra.Command {
 }
 func recordCmd() *cobra.Command {
 	var (
-		cmdStr    string
+		cmdStr   string
 		dir      string
 		exitCode int
 		duration int64
@@ -424,6 +430,7 @@ func recordCmd() *cobra.Command {
 	cmd.Flags().StringVar(&session, "session", "", "Session ID")
 	return cmd
 }
+
 // Helpers
 func timeSince(t time.Time) string {
 	d := time.Since(t)
@@ -525,5 +532,32 @@ func atuinCmd() *cobra.Command {
 			return nil
 		},
 	}
+	return cmd
+}
+
+func cleanCmd() *cobra.Command {
+	var confirm bool
+	cmd := &cobra.Command{
+		Use:   "clean",
+		Short: "Clear all history from ContextFlow",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if !confirm {
+				fmt.Println("Run with --confirm to clear all history")
+				return nil
+			}
+			dir, err := db.DataDir()
+			if err != nil {
+				return err
+			}
+			dbPath := filepath.Join(dir, "history.db")
+			if err := os.Remove(dbPath); err != nil {
+				return fmt.Errorf("remove db: %w", err)
+			}
+			fmt.Println("ContextFlow history cleared")
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&confirm, "confirm", false, "Confirm clearing history")
 	return cmd
 }

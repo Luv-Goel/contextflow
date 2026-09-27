@@ -14,6 +14,12 @@ Every developer has typed `history | grep` in desperation. You know a command ex
 
 **ContextFlow** remembers the workflow, not just the command.
 
+<p align="center">
+  <img src="architecture.svg" alt="ContextFlow Architecture Diagram" width="100%">
+</p>
+
+[Visit the Official Documentation Page for more details!](https://luv-goel.github.io/contextflow/)
+
 ---
 
 ## Features

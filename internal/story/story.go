@@ -22,16 +22,16 @@ func Generate(provider CommandProvider, since time.Duration) string {
 
 	// Group stats
 	var (
-		totalCommands    = len(commands)
-		gitCommands   int
-		buildCommands int
+		totalCommands  = len(commands)
+		gitCommands    int
+		buildCommands  int
 		failedCommands int
-		searches     int
-		byRepo      = make(map[string]int)
-		byHour      = make(map[int]int)
-		totalDuration time.Duration
-		regrets     int
-		successes   int
+		searches       int
+		byRepo         = make(map[string]int)
+		byHour         = make(map[int]int)
+		totalDuration  time.Duration
+		regrets        int
+		successes      int
 	)
 
 	successIndicators := []string{"push", "deploy", "merge", "release"}

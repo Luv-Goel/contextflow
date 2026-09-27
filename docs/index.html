@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContextFlow Documentation</title>
+    <style>
+        body { font-family: -apple-system, system-ui, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
+        h1 { color: #5B42F3; }
+        code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
+        pre { background: #282a36; color: #f8f8f2; padding: 1rem; border-radius: 8px; overflow-x: auto; font-family: monospace; }
+        .hero { text-align: center; margin-bottom: 3rem; }
+        .hero img { max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-top: 2rem; }
+        a { color: #5B42F3; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>ContextFlow 🧠</h1>
+        <p><strong>Shell history that understands your workflows, not just your commands.</strong></p>
+        <p>
+            <a href="https://github.com/Luv-Goel/contextflow">View on GitHub</a>
+        </p>
+        <!-- The architecture.svg is at root so we reference it correctly in gh-pages -->
+        <img src="https://raw.githubusercontent.com/Luv-Goel/contextflow/main/architecture.svg" alt="ContextFlow Architecture">
+    </div>
+    
+    <h2>Why ContextFlow?</h2>
+    <p>Every developer has typed <code>history | grep</code> in desperation. You know a command exists somewhere — you just can't find the sequence around it. ContextFlow remembers the workflow, not just the command.</p>
+    
+    <h2>Features</h2>
+    <ul>
+        <li>🔍 <strong>Fuzzy search TUI</strong> — beautiful Ctrl+R replacement with project context</li>
+        <li>🧠 <strong>Workflow detection</strong> — auto-groups related commands by git repo + session</li>
+        <li>🔁 <strong>Replay</strong> — step through any past workflow interactively</li>
+        <li>📤 <strong>Export</strong> — workflows as <code>.sh</code> scripts or Markdown runbooks</li>
+        <li>🗑️ <strong>Clean</strong> — quickly clear your history with <code>cf clean</code></li>
+        <li>📊 <strong>Stats</strong> — most-used commands, busiest repos, session analytics</li>
+    </ul>
+
+    <h2>Installation</h2>
+    <pre><code>go install github.com/Luv-Goel/contextflow/cmd/cf@latest</code></pre>
+    
+    <h3>Setup</h3>
+    <p>Add to your shell config and restart:</p>
+    <pre><code># bash
+eval "$(cf init bash)"
+
+# zsh
+eval "$(cf init zsh)"
+
+# fish
+cf init fish | source</code></pre>
+</body>
+</html>

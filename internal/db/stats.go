@@ -4,13 +4,13 @@ import "fmt"
 
 // Stats holds usage analytics.
 type Stats struct {
-	TotalCommands   int
-	UniqueCommands  int
-	TotalWorkflows  int
-	TopCommands     []CommandFreq
-	TopRepos        []RepoFreq
-	AvgDurationMs   int64
-	TotalSessions   int
+	TotalCommands  int
+	UniqueCommands int
+	TotalWorkflows int
+	TopCommands    []CommandFreq
+	TopRepos       []RepoFreq
+	AvgDurationMs  int64
+	TotalSessions  int
 }
 
 // CommandFreq is a command + how often it was used.
