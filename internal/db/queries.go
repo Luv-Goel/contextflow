@@ -108,6 +108,23 @@ type Workflow struct {
 	Commands  []Command
 }
 
+// Duration returns the total time spent on this workflow's commands,
+// computed as the sum of each command's duration_ms. Falls back to the
+// wall-clock span (last recorded_at minus first) when durations are absent.
+func (w *Workflow) Duration() time.Duration {
+	var total int64
+	for _, c := range w.Commands {
+		total += c.DurationMs
+	}
+	if total > 0 {
+		return time.Duration(total) * time.Millisecond
+	}
+	if len(w.Commands) > 1 {
+		return w.Commands[len(w.Commands)-1].RecordedAt.Sub(w.Commands[0].RecordedAt)
+	}
+	return 0
+}
+
 // ListWorkflows returns all workflows with their commands.
 func (db *DB) ListWorkflows(limit int) ([]Workflow, error) {
 	rows, err := db.Query(`

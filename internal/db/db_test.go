@@ -172,3 +172,36 @@ func TestGetStats(t *testing.T) {
 		t.Errorf("expected count 3 for git push, got %d", stats.TopCommands[0].Count)
 	}
 }
+
+func TestWorkflowDuration(t *testing.T) {
+	base := time.Now()
+
+	// Sum of duration_ms when present
+	w := &Workflow{
+		Commands: []Command{
+			{DurationMs: 100},
+			{DurationMs: 250},
+			{DurationMs: 50},
+		},
+	}
+	if got := w.Duration(); got != 400*time.Millisecond {
+		t.Errorf("expected 400ms sum, got %v", got)
+	}
+
+	// Wall-clock fallback when durations are absent
+	w2 := &Workflow{
+		Commands: []Command{
+			{RecordedAt: base},
+			{RecordedAt: base.Add(3 * time.Second)},
+		},
+	}
+	if got := w2.Duration(); got != 3*time.Second {
+		t.Errorf("expected 3s span, got %v", got)
+	}
+
+	// Single command with no duration -> zero
+	w3 := &Workflow{Commands: []Command{{}}}
+	if got := w3.Duration(); got != 0 {
+		t.Errorf("expected 0, got %v", got)
+	}
+}
