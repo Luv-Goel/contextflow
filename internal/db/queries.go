@@ -125,6 +125,33 @@ func (w *Workflow) Duration() time.Duration {
 	return 0
 }
 
+// CommandCount returns the number of commands in this workflow.
+func (w *Workflow) CommandCount() int {
+	return len(w.Commands)
+}
+
+// SuccessCount returns the number of commands that exited with code 0.
+func (w *Workflow) SuccessCount() int {
+	var n int
+	for _, c := range w.Commands {
+		if c.ExitCode == 0 {
+			n++
+		}
+	}
+	return n
+}
+
+// FailureCount returns the number of commands that exited non-zero.
+func (w *Workflow) FailureCount() int {
+	var n int
+	for _, c := range w.Commands {
+		if c.ExitCode != 0 {
+			n++
+		}
+	}
+	return n
+}
+
 // ListWorkflows returns all workflows with their commands.
 func (db *DB) ListWorkflows(limit int) ([]Workflow, error) {
 	rows, err := db.Query(`

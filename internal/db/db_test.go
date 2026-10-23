@@ -205,3 +205,34 @@ func TestWorkflowDuration(t *testing.T) {
 		t.Errorf("expected 0, got %v", got)
 	}
 }
+
+func TestWorkflowStats(t *testing.T) {
+	w := &Workflow{
+		Commands: []Command{
+			{ExitCode: 0},
+			{ExitCode: 0},
+			{ExitCode: 1},
+			{ExitCode: 127},
+		},
+	}
+	if got := w.CommandCount(); got != 4 {
+		t.Errorf("expected 4 commands, got %d", got)
+	}
+	if got := w.SuccessCount(); got != 2 {
+		t.Errorf("expected 2 successes, got %d", got)
+	}
+	if got := w.FailureCount(); got != 2 {
+		t.Errorf("expected 2 failures, got %d", got)
+	}
+
+	empty := &Workflow{}
+	if got := empty.CommandCount(); got != 0 {
+		t.Errorf("expected 0, got %d", got)
+	}
+	if got := empty.SuccessCount(); got != 0 {
+		t.Errorf("expected 0, got %d", got)
+	}
+	if got := empty.FailureCount(); got != 0 {
+		t.Errorf("expected 0, got %d", got)
+	}
+}
